@@ -31,7 +31,7 @@ app.use(myConnection(mysql, dbOptions, 'pool'))
 /**
  * setting up the templating view engine
  */ 
-app.set('view engine', 'ejs')
+// app.set('view engine', 'ejs')
 
 /**
  * import routes/index.js

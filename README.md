@@ -2,6 +2,18 @@
 Node.js, Express & MySQL:
 ========
 
+## Start/Stop MYSQL Server on Mac
+# Start MySQL
+
+sudo /usr/local/mysql/support-files/mysql.server start --mysql-native-password=ON
+# Stop MySQL
+
+sudo /usr/local/mysql/support-files/mysql.server stop
+# Restart MySQL
+
+sudo /usr/local/mysql/support-files/mysql.server restart
+========
+
 A simple and basic CRUD application (Create, Read, Update, Delete) using Node.js, Express, MySQL and JSON API
 
 **Creating database and table**

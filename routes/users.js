@@ -9,24 +9,21 @@ app.get('/', function(req, res, next) {
 		conn.query('SELECT * FROM users ORDER BY id DESC',function(err, rows, fields) {
 			//if(err) throw err
 			if (err) {
-				req.flash('error', err)
-				res.render('user/list', {
-					title: 'User List', 
-					data: ''
-				})
-			} else {
+				console.log(err)
+			} /* else {
 				// render to views/user/list.ejs template file
 				res.render('user/list', {
 					title: 'User List', 
 					data: rows
 				})
-			}
+			} */
+			res.send(200, {data: rows})
 		})
 	})
 })
 
 // SHOW ADD USER FORM
-app.get('/add', function(req, res, next){	
+/* app.get('/add', function(req, res, next){	
 	// render to views/user/add.ejs
 	res.render('user/add', {
 		title: 'Add New User',
@@ -34,9 +31,9 @@ app.get('/add', function(req, res, next){
 		age: '',
 		email: ''		
 	})
-})
+}) */
 
-// SHOW ADD USER FORM
+// A simple JSON method on user route
 app.get('/json', function(req, res, next){	
 	req.getConnection(function(error, conn) {
 		if(error) throw error;
@@ -44,14 +41,9 @@ app.get('/json', function(req, res, next){
 		conn.query('SELECT * FROM users ORDER BY id DESC',function(err, rows, fields) {
 			//if(err) throw err
 			if (err) {
-				req.flash('error', err)
-				res.render('user/list', {
-					title: 'User List', 
-					data: ''
-				})
+				console.log(err)
 			} else {
-				console.log(`Rows count ${rows?.length}`)
-				res.send({
+				res.json({
 					count: rows?.length
 				})
 			}
@@ -60,7 +52,7 @@ app.get('/json', function(req, res, next){
 })
 
 // ADD NEW USER POST ACTION
-app.post('/add', function(req, res, next){	
+app.post('/add', function(req, res, next) {	
 	req.assert('name', 'Name is required').notEmpty()           //Validate name
 	req.assert('age', 'Age is required').notEmpty()             //Validate age
     req.assert('email', 'A valid email is required').isEmail()  //Validate email
@@ -88,25 +80,26 @@ app.post('/add', function(req, res, next){
 			conn.query('INSERT INTO users SET ?', user, function(err, result) {
 				//if(err) throw err
 				if (err) {
-					req.flash('error', err)
+					throw err
 					
 					// render to views/user/add.ejs
-					res.render('user/add', {
+					/* res.render('user/add', {
 						title: 'Add New User',
 						name: user.name,
 						age: user.age,
 						email: user.email					
-					})
+					}) */
 				} else {				
-					req.flash('success', 'Data added successfully!')
+					// req.flash('success', 'Data added successfully!')
 					
 					// render to views/user/add.ejs
-					res.render('user/add', {
+					/* res.render('user/add', {
 						title: 'Add New User',
 						name: '',
 						age: '',
 						email: ''					
-					})
+					}) */
+					res.send(201, "User added successfully")
 				}
 			})
 		})
@@ -115,48 +108,21 @@ app.post('/add', function(req, res, next){
 		var error_msg = ''
 		errors.forEach(function(error) {
 			error_msg += error.msg + '<br>'
-		})				
-		req.flash('error', error_msg)		
+		})
+		// req.flash('error', error_msg)
+		res.send(400, error_msg)
 		
 		/**
 		 * Using req.body.name 
 		 * because req.param('name') is deprecated
-		 */ 
-        res.render('user/add', { 
+		 */
+        /* res.render('user/add', {
             title: 'Add New User',
             name: req.body.name,
             age: req.body.age,
             email: req.body.email
-        })
+        }) */
     }
-})
-
-// SHOW EDIT USER FORM
-app.get('/edit/(:id)', function(req, res, next){
-	req.getConnection(function(error, conn) {
-		if(error) throw error;
-
-		conn.query('SELECT * FROM users WHERE id = ?', [req.params.id], function(err, rows, fields) {
-			if(err) throw err
-			
-			// if user not found
-			if (rows.length <= 0) {
-				req.flash('error', 'User not found with id = ' + req.params.id)
-				res.redirect('/users')
-			}
-			else { // if user found
-				// render to views/user/edit.ejs template file
-				res.render('user/edit', {
-					title: 'Edit User', 
-					//data: rows[0],
-					id: rows[0].id,
-					name: rows[0].name,
-					age: rows[0].age,
-					email: rows[0].email					
-				})
-			}			
-		})
-	})
 })
 
 // EDIT USER POST ACTION
@@ -186,29 +152,32 @@ app.put('/edit/(:id)', function(req, res, next) {
 		
 		req.getConnection(function(error, conn) {
 			conn.query('UPDATE users SET ? WHERE id = ' + req.params.id, user, function(err, result) {
+				console.log('result: ', err)
 				//if(err) throw err
 				if (err) {
-					req.flash('error', err)
+					// req.flash('error', err)
+					throw err
 					
 					// render to views/user/add.ejs
-					res.render('user/edit', {
+					/* res.render('user/edit', {
 						title: 'Edit User',
 						id: req.params.id,
 						name: req.body.name,
 						age: req.body.age,
 						email: req.body.email
-					})
+					}) */
 				} else {
-					req.flash('success', 'Data updated successfully!')
+					// req.flash('success', 'Data updated successfully!')
 					
 					// render to views/user/add.ejs
-					res.render('user/edit', {
+					/* res.render('user/edit', {
 						title: 'Edit User',
 						id: req.params.id,
 						name: req.body.name,
 						age: req.body.age,
 						email: req.body.email
-					})
+					}) */
+					res.send(200, "User updated successfully")
 				}
 			})
 		})
@@ -218,19 +187,20 @@ app.put('/edit/(:id)', function(req, res, next) {
 		errors.forEach(function(error) {
 			error_msg += error.msg + '<br>'
 		})
-		req.flash('error', error_msg)
+		// req.flash('error', error_msg)
+		res.send(400, error_msg)
 		
 		/**
 		 * Using req.body.name 
 		 * because req.param('name') is deprecated
 		 */ 
-        res.render('user/edit', { 
+        /* res.render('user/edit', { 
             title: 'Edit User',            
 			id: req.params.id, 
 			name: req.body.name,
 			age: req.body.age,
 			email: req.body.email
-        })
+        }) */
     }
 })
 
